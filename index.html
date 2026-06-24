@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NitrAI — OpenGCM 8B: Performance Breakthrough</title>
+    <meta name="description" content="OpenGCM 8B: An open-source 8B parameter model evaluated under maximum thinking effort, outperforming top-tier closed commercial models." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nitrai: {
+                            bg: '#0f172a',
+                            deeper: '#020617',
+                            red: '#dc2626',
+                            'red-hover': '#b91c1c',
+                            steel: '#64748b',
+                            'steel-light': '#94a3b8',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Radial glow behind hero */
+        .hero-glow {
+            position: absolute;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glassmorphism mixin classes */
+        .glass {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* CTA button base styles */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 2rem;
+            background: #dc2626;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 12px;
+            transition: all 0.25s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 2rem;
+            background: transparent;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 12px;
+            border: 1.5px solid #475569;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            border-color: #64748b;
+            color: #f1f5f9;
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-2px);
+        }
+
+        /* Nav link style */
+        .nav-link {
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 0;
+            height: 2px;
+            background: #dc2626;
+            transition: width 0.25s ease;
+        }
+
+        .nav-link:hover {
+            color: #f1f5f9;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* SVG container styling */
+        .svg-container {
+            background: #f1f5f9;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .svg-container svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        /* Scroll-in animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Section divider */
+        .section-divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.08), transparent);
+            margin: 0;
+        }
+
+        /* Footer */
+        .footer-link {
+            color: #64748b;
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            color: #dc2626;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 1024px) {
+            .hero-glow {
+                width: 500px;
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .btn-primary,
+            .btn-secondary {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== NAVBAR ==================== -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            <div class="flex items-center justify-between h-16 lg:h-20">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-1.5 text-xl font-extrabold tracking-tight no-underline">
+                    <span class="text-white">Nitr</span>
+                    <span class="text-[#dc2626]">AI</span>
+                </a>
+
+                <!-- Nav Links -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#benchmarks" class="nav-link">Benchmarks</a>
+                    <a href="https://huggingface.co/NitrAI/OpenGCM-v1" target="_blank" rel="noopener noreferrer" class="nav-link">Hugging Face</a>
+                    <a href="https://github.com/nitrai" target="_blank" rel="noopener noreferrer" class="nav-link">GitHub</a>
+                </nav>
+
+                <!-- Mobile Hamburger -->
+                <button id="mobile-menu-btn" class="md:hidden flex flex-col gap-1 p-2 bg-transparent border-none cursor-pointer" aria-label="Toggle menu">
+                    <span class="block w-6 h-[2px] bg-gray-400 transition-all"></span>
+                    <span class="block w-6 h-[2px] bg-gray-400 transition-all"></span>
+                    <span class="block w-6 h-[2px] bg-gray-400 transition-all"></span>
+                </button>
+            </div>
+
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="md:hidden hidden pb-4">
+                <div class="flex flex-col gap-3 pt-2 border-t border-white/5">
+                    <a href="#benchmarks" class="nav-link text-sm py-2">Benchmarks</a>
+                    <a href="https://huggingface.co/NitrAI/OpenGCM-v1" target="_blank" rel="noopener noreferrer" class="nav-link text-sm py-2">Hugging Face</a>
+                    <a href="https://github.com/nitrai" target="_blank" rel="noopener noreferrer" class="nav-link text-sm py-2">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16 px-6 sm:px-8 lg:px-12">
+        <div class="hero-glow"></div>
+
+        <div class="relative z-10 max-w-5xl mx-auto text-center">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-[#94a3b8] mb-8">
+                <span class="w-2 h-2 rounded-full bg-[#dc2626] animate-pulse"></span>
+                Open-Source AI Research
+            </div>
+
+            <!-- Main Heading -->
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight text-white mb-6">
+                <span class="bg-gradient-to-r from-white via-gray-300 to-[#64748b] bg-clip-text text-transparent">
+                    NitrAI
+                </span>
+            </h1>
+
+            <!-- Subheader -->
+            <p class="max-w-2xl mx-auto text-lg sm:text-xl text-[#94a3b8] leading-relaxed mb-10">
+                A research that makes top models efficient
+            </p>
+
+            <!-- CTAs -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="https://huggingface.co/NitrAI/OpenGCM-v1" target="_blank" rel="noopener noreferrer" class="btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Explore on Hugging Face
+                </a>
+                <a href="https://github.com/nitrai/OpenGCM-8B" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+                    </svg>
+                    View GitHub Repository
+                </a>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+            <a href="#benchmarks" class="flex flex-col items-center gap-2 text-[#64748b] text-xs font-medium no-underline transition-colors hover:text-[#94a3b8]">
+                <span>Scroll to Benchmarks</span>
+                <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="section-divider"></div>
+
+    <!-- ==================== BENCHMARK DASHBOARD ==================== -->
+    <section id="benchmarks" class="py-20 lg:py-28 px-6 sm:px-8 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <!-- Section Header -->
+            <div class="text-center mb-14 fade-in">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4">
+                    Benchmark <span class="text-[#dc2626]">Dashboard</span>
+                </h2>
+                <p class="max-w-2xl mx-auto text-[#94a3b8] text-lg">
+                    Comprehensive evaluation across knowledge, reasoning, agentic capabilities, and efficiency metrics.
+                </p>
+            </div>
+
+            <!-- Full-Width SVG Chart -->
+            <div class="fade-in">
+                <div class="svg-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" width="100%" height="auto" style="background-color: #f1f5f9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: block;">
+                        <!-- Definitions for Gradients and Patterns -->
+                        <defs>
+                            <!-- Background Card Shadow -->
+                            <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+                                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.04" />
+                            </filter>
+
+                            <!-- OpenGCM Red Gradient -->
+                            <linearGradient id="red-grad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#dc2626" />
+                                <stop offset="100%" stop-color="#991b1b" />
+                            </linearGradient>
+
+                            <!-- DeepSeek Slate Pattern/Stripe effect -->
+                            <linearGradient id="dark-grad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#1e293b" />
+                                <stop offset="100%" stop-color="#0f172a" />
+                            </linearGradient>
+
+                            <!-- Claude / Competitor Grays -->
+                            <linearGradient id="gray-grad-1" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#475569" />
+                                <stop offset="100%" stop-color="#334155" />
+                            </linearGradient>
+                            <linearGradient id="gray-grad-2" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#64748b" />
+                                <stop offset="100%" stop-color="#475569" />
+                            </linearGradient>
+                            <linearGradient id="gray-grad-3" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#94a3b8" />
+                                <stop offset="100%" stop-color="#64748b" />
+                            </linearGradient>
+                            <linearGradient id="gray-grad-4" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#cbd5e1" />
+                                <stop offset="100%" stop-color="#94a3b8" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Main Container -->
+                        <rect width="1600" height="800" fill="#f1f5f9" rx="16" />
+
+                        <!-- HEADER -->
+                        <g transform="translate(50, 55)">
+                            <text x="0" y="0" font-size="32" font-weight="800" fill="#0f172a" letter-spacing="-0.5">OpenGCM 8B: <tspan font-weight="400" fill="#475569">Performance Evaluation vs. Top Tier Models</tspan></text>
+                            <text x="0" y="24" font-size="14" font-weight="500" fill="#64748b">*Models evaluated under maximum thinking effort for relevant benchmarks.</text>
+                        </g>
+
+                        <!-- ================= LEFT COLUMN: MAIN BAR CHART ================= -->
+                        <!-- Card Background -->
+                        <rect x="50" y="110" width="840" height="640" rx="12" fill="#ffffff" filter="url(#shadow)" />
+
+                        <!-- Y-Axis Gridlines & Labels -->
+                        <g transform="translate(100, 110)">
+                            <!-- 100% -->
+                            <line x1="0" y1="50" x2="760" y2="50" stroke="#e2e8f0" stroke-width="1" />
+                            <text x="-15" y="54" font-size="12" font-weight="600" fill="#64748b" text-anchor="end">100</text>
+                            <!-- 80% -->
+                            <line x1="0" y1="136" x2="760" y2="136" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1" />
+                            <text x="-15" y="140" font-size="12" font-weight="600" fill="#64748b" text-anchor="end">80</text>
+                            <!-- 60% -->
+                            <line x1="0" y1="222" x2="760" y2="222" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1" />
+                            <text x="-15" y="226" font-size="12" font-weight="600" fill="#64748b" text-anchor="end">60</text>
+                            <!-- 40% -->
+                            <line x1="0" y1="308" x2="760" y2="308" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1" />
+                            <text x="-15" y="312" font-size="12" font-weight="600" fill="#64748b" text-anchor="end">40</text>
+                            <!-- 20% -->
+                            <line x1="0" y1="394" x2="760" y2="394" stroke="#e2e8f0" stroke-dasharray="4 4" stroke-width="1" />
+                            <text x="-15" y="398" font-size="12" font-weight="600" fill="#64748b" text-anchor="end">20</text>
+                            <!-- 0% Baseline -->
+                            <line x1="0" y1="480" x2="760" y2="480" stroke="#475569" stroke-width="2" />
+                            <text x="-15" y="484" font-size="12" font-weight="600" fill="#64748b" text-anchor="end">0</text>
+                            <text x="-55" y="240" font-size="14" font-weight="700" fill="#334155" transform="rotate(-90 -55 240)" text-anchor="middle">Accuracy / Pass@1 (%)</text>
+                        </g>
+
+                        <!-- BARS & LABELS GROUP -->
+                        <g transform="translate(100, 110)">
+                            <!-- 1. SimpleQA Verified -->
+                            <g transform="translate(45, 0)">
+                                <rect x="0" y="231" width="14" height="249" rx="3" fill="url(#red-grad)" />
+                                <text x="7" y="223" font-size="11" font-weight="800" fill="#991b1b" text-anchor="middle">57.9</text>
+                                <rect x="18" y="281" width="14" height="199" rx="3" fill="url(#dark-grad)" />
+                                <text x="25" y="275" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">46.2</text>
+                                <rect x="36" y="284" width="14" height="196" rx="3" fill="url(#gray-grad-1)" />
+                                <text x="43" y="278" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">45.5</text>
+                                <text x="25" y="505" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">SimpleQA</text>
+                                <text x="25" y="521" font-size="11" font-weight="500" fill="#64748b" text-anchor="middle">Verified</text>
+                                <text x="25" y="535" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">(Pass@1)</text>
+                            </g>
+                            <!-- 2. HLE -->
+                            <g transform="translate(145, 0)">
+                                <rect x="0" y="155" width="12" height="325" rx="3" fill="url(#red-grad)" />
+                                <text x="6" y="147" font-size="11" font-weight="800" fill="#991b1b" text-anchor="middle">75.6</text>
+                                <rect x="15" y="318" width="12" height="162" rx="3" fill="url(#dark-grad)" />
+                                <text x="21" y="312" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">37.7</text>
+                                <rect x="30" y="308" width="12" height="172" rx="3" fill="url(#gray-grad-1)" />
+                                <text x="36" y="302" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">40.0</text>
+                                <rect x="45" y="309" width="12" height="171" rx="3" fill="url(#gray-grad-2)" />
+                                <text x="51" y="303" font-size="10" font-weight="600" fill="#64748b" text-anchor="middle">39.8</text>
+                                <rect x="60" y="289" width="12" height="191" rx="3" fill="url(#gray-grad-3)" />
+                                <text x="66" y="283" font-size="10" font-weight="600" fill="#94a3b8" text-anchor="middle">44.4</text>
+                                <text x="36" y="505" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">HLE</text>
+                                <text x="36" y="521" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">(Pass@1)</text>
+                            </g>
+                            <!-- 3. Apex Shortlist -->
+                            <g transform="translate(255, 0)">
+                                <rect x="0" y="92" width="13" height="388" rx="3" fill="url(#red-grad)" />
+                                <text x="6" y="84" font-size="11" font-weight="800" fill="#991b1b" text-anchor="middle">90.2</text>
+                                <rect x="16" y="111" width="13" height="369" rx="3" fill="url(#dark-grad)" />
+                                <text x="22" y="105" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">85.9</text>
+                                <rect x="32" y="144" width="13" height="336" rx="3" fill="url(#gray-grad-1)" />
+                                <text x="38" y="138" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">78.1</text>
+                                <rect x="48" y="97" width="13" height="383" rx="3" fill="url(#gray-grad-2)" />
+                                <text x="54" y="91" font-size="10" font-weight="600" fill="#64748b" text-anchor="middle">89.1</text>
+                                <text x="27" y="505" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">Apex</text>
+                                <text x="27" y="521" font-size="11" font-weight="500" fill="#64748b" text-anchor="middle">Shortlist</text>
+                                <text x="27" y="535" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">(Pass@1)</text>
+                            </g>
+                            <!-- 4. Codeforces -->
+                            <g transform="translate(355, 0)">
+                                <rect x="0" y="86" width="14" height="394" rx="3" fill="url(#red-grad)" />
+                                <text x="7" y="78" font-size="11" font-weight="800" fill="#991b1b" text-anchor="middle">3206</text>
+                                <rect x="18" y="91" width="14" height="389" rx="3" fill="url(#dark-grad)" />
+                                <text x="25" y="85" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">3168</text>
+                                <rect x="36" y="105" width="14" height="375" rx="3" fill="url(#gray-grad-1)" />
+                                <text x="43" y="99" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">3052</text>
+                                <text x="25" y="505" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">Codeforces</text>
+                                <text x="25" y="521" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">(Rating)</text>
+                            </g>
+                            <!-- 5. SWE Verified -->
+                            <g transform="translate(455, 0)">
+                                <rect x="0" y="133" width="14" height="347" rx="3" fill="url(#red-grad)" />
+                                <text x="7" y="125" font-size="11" font-weight="800" fill="#991b1b" text-anchor="middle">80.6</text>
+                                <rect x="18" y="132" width="14" height="348" rx="3" fill="url(#dark-grad)" />
+                                <text x="25" y="124" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">80.8</text>
+                                <rect x="36" y="133" width="14" height="347" rx="3" fill="url(#gray-grad-1)" />
+                                <text x="43" y="125" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">80.6</text>
+                                <text x="25" y="505" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">SWE</text>
+                                <text x="25" y="521" font-size="11" font-weight="500" fill="#64748b" text-anchor="middle">Verified</text>
+                                <text x="25" y="535" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">(Resolved)</text>
+                            </g>
+                            <!-- 6. Terminal Bench 2.0 -->
+                            <g transform="translate(555, 0)">
+                                <rect x="0" y="188" width="13" height="292" rx="3" fill="url(#red-grad)" />
+                                <text x="6" y="180" font-size="11" font-weight="800" fill="#991b1b" text-anchor="middle">67.9</text>
+                                <rect x="16" y="199" width="13" height="281" rx="3" fill="url(#dark-grad)" />
+                                <text x="22" y="193" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">65.4</text>
+                                <rect x="32" y="157" width="13" height="323" rx="3" fill="url(#gray-grad-1)" />
+                                <text x="38" y="151" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">75.1</text>
+                                <rect x="48" y="185" width="13" height="295" rx="3" fill="url(#gray-grad-2)" />
+                                <text x="54" y="179" font-size="10" font-weight="600" fill="#64748b" text-anchor="middle">68.5</text>
+                                <text x="27" y="505" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">Terminal</text>
+                                <text x="27" y="521" font-size="11" font-weight="500" fill="#64748b" text-anchor="middle">Bench 2.0</text>
+                                <text x="27" y="535" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">(Acc)</text>
+                            </g>
+                            <!-- 7. Toolathlon -->
+                            <g transform="translate(655, 0)">
+                                <rect x="0" y="257" width="13" height="223" rx="3" fill="url(#red-grad)" />
+                                <text x="6" y="249" font-size="11" font-weight="800" fill="#991b1b" text-anchor="middle">51.8</text>
+                                <rect x="16" y="277" width="13" height="203" rx="3" fill="url(#dark-grad)" />
+                                <text x="22" y="271" font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">47.2</text>
+                                <rect x="32" y="257" width="13" height="223" rx="3" fill="url(#gray-grad-1)" />
+                                <text x="38" y="249" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">51.8</text>
+                                <rect x="48" y="270" width="13" height="210" rx="3" fill="url(#gray-grad-2)" />
+                                <text x="54" y="264" font-size="10" font-weight="600" fill="#64748b" text-anchor="middle">48.8</text>
+                                <text x="27" y="505" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">Toolathlon</text>
+                                <text x="27" y="521" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">(Pass@1)</text>
+                            </g>
+                        </g>
+
+                        <!-- Brackets and Categories Footer -->
+                        <g transform="translate(100, 110)">
+                            <path d="M 35 555 L 35 563 L 415 563 L 415 555" fill="none" stroke="#94a3b8" stroke-width="2" />
+                            <text x="225" y="582" font-size="15" font-weight="800" fill="#475569" text-anchor="middle" letter-spacing="1">KNOWLEDGE & REASONING</text>
+                            <path d="M 465 555 L 465 563 L 745 563 L 745 555" fill="none" stroke="#94a3b8" stroke-width="2" />
+                            <text x="605" y="582" font-size="15" font-weight="800" fill="#475569" text-anchor="middle" letter-spacing="1">AGENTIC CAPABILITIES</text>
+                        </g>
+
+                        <!-- Legend -->
+                        <g transform="translate(140, 135)">
+                            <rect x="0" y="0" width="22" height="10" rx="2" fill="url(#red-grad)" />
+                            <text x="28" y="9" font-size="11" font-weight="700" fill="#1e293b">OpenGCM 8B</text>
+                            <rect x="135" y="0" width="22" height="10" rx="2" fill="url(#dark-grad)" />
+                            <text x="163" y="9" font-size="11" font-weight="700" fill="#1e293b">DeepSeek-V4-Pro</text>
+                            <rect x="290" y="0" width="22" height="10" rx="2" fill="url(#gray-grad-1)" />
+                            <text x="318" y="9" font-size="11" font-weight="700" fill="#1e293b">Claude-Opus 4.8</text>
+                            <rect x="435" y="0" width="22" height="10" rx="2" fill="url(#gray-grad-2)" />
+                            <text x="463" y="9" font-size="11" font-weight="700" fill="#1e293b">GPT-5.5</text>
+                            <rect x="525" y="0" width="22" height="10" rx="2" fill="url(#gray-grad-3)" />
+                            <text x="553" y="9" font-size="11" font-weight="700" fill="#1e293b">Gemini 3.1 Pro</text>
+                        </g>
+
+                        <!-- ================= RIGHT COLUMN: LINE GRAPHS ================= -->
+                        <!-- 1. FLOPs Efficiency Card -->
+                        <g transform="translate(910, 110)">
+                            <rect width="315" height="195" rx="12" fill="#ffffff" filter="url(#shadow)" />
+                            <text x="15" y="25" font-size="13" font-weight="800" fill="#0f172a">Single-Token FLOPs (T)</text>
+                            <g transform="translate(35, 40)">
+                                <line x1="0" y1="0" x2="250" y2="0" stroke="#f1f5f9" stroke-width="1" />
+                                <line x1="0" y1="50" x2="250" y2="50" stroke="#f1f5f9" stroke-dasharray="3 3" />
+                                <text x="-10" y="54" font-size="10" font-weight="700" fill="#94a3b8" text-anchor="end">0.6</text>
+                                <line x1="0" y1="100" x2="250" y2="100" stroke="#f1f5f9" stroke-width="1" />
+                                <text x="-10" y="104" font-size="10" font-weight="700" fill="#94a3b8" text-anchor="end">0.0</text>
+                                <text x="-10" y="4" font-size="10" font-weight="700" fill="#94a3b8" text-anchor="end">1.2</text>
+                                <path d="M 0 100 Q 125 70 250 15" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3 3" />
+                                <path d="M 0 100 Q 125 95 250 85" fill="none" stroke="#dc2626" stroke-width="3" />
+                                <path d="M 125 70 L 125 95" fill="none" stroke="#dc2626" stroke-width="1.5" />
+                                <rect x="135" y="70" width="65" height="16" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1" />
+                                <text x="167" y="82" font-size="9" font-weight="800" fill="#b91c1c" text-anchor="middle">9.8x lower</text>
+                                <path d="M 245 15 L 245 83" fill="none" stroke="#dc2626" stroke-width="1.5" />
+                                <rect x="175" y="25" width="65" height="16" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1" />
+                                <text x="207" y="37" font-size="9" font-weight="800" fill="#b91c1c" text-anchor="middle">3.7x lower</text>
+                                <text x="0" y="115" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">0</text>
+                                <text x="125" y="115" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">512</text>
+                                <text x="250" y="115" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">1024</text>
+                                <text x="125" y="130" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">Token Position (K)</text>
+                            </g>
+                        </g>
+
+                        <!-- 2. KV Cache Efficiency Card -->
+                        <g transform="translate(1245, 110)">
+                            <rect width="305" height="195" rx="12" fill="#ffffff" filter="url(#shadow)" />
+                            <text x="15" y="25" font-size="13" font-weight="800" fill="#0f172a">Accumulated KV Cache (GB)</text>
+                            <g transform="translate(35, 40)">
+                                <line x1="0" y1="0" x2="240" y2="0" stroke="#f1f5f9" stroke-width="1" />
+                                <line x1="0" y1="50" x2="240" y2="50" stroke="#f1f5f9" stroke-dasharray="3 3" />
+                                <text x="-10" y="54" font-size="10" font-weight="700" fill="#94a3b8" text-anchor="end">30</text>
+                                <line x1="0" y1="100" x2="240" y2="100" stroke="#f1f5f9" stroke-width="1" />
+                                <text x="-10" y="104" font-size="10" font-weight="700" fill="#94a3b8" text-anchor="end">0</text>
+                                <text x="-10" y="4" font-size="10" font-weight="700" fill="#94a3b8" text-anchor="end">60</text>
+                                <path d="M 0 100 Q 120 60 240 5" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3 3" />
+                                <path d="M 0 100 Q 120 95 240 90" fill="none" stroke="#dc2626" stroke-width="3" />
+                                <path d="M 120 60 L 120 95" fill="none" stroke="#dc2626" stroke-width="1.5" />
+                                <rect x="130" y="60" width="70" height="16" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1" />
+                                <text x="165" y="72" font-size="9" font-weight="800" fill="#b91c1c" text-anchor="middle">13.7x lower</text>
+                                <path d="M 235 5 L 235 88" fill="none" stroke="#dc2626" stroke-width="1.5" />
+                                <rect x="160" y="20" width="65" height="16" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1" />
+                                <text x="192" y="32" font-size="9" font-weight="800" fill="#b91c1c" text-anchor="middle">9.5x lower</text>
+                                <text x="0" y="115" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">0</text>
+                                <text x="120" y="115" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">512</text>
+                                <text x="240" y="115" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">1024</text>
+                                <text x="120" y="130" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">Sequence Length (K)</text>
+                            </g>
+                        </g>
+
+                        <!-- ================= RIGHT COLUMN: GRID OF MINI BENCHMARKS ================= -->
+                        <g transform="translate(910, 320)">
+                            <!-- ROW 1 -->
+                            <g transform="translate(0, 0)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">AIME '25</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">IMO-AnswerBench</text>
+                                <rect x="15" y="55" width="10" height="45" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="50" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">96.7</text>
+                                <rect x="30" y="62" width="10" height="38" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="56" width="10" height="44" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="55" width="10" height="45" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="58" width="10" height="42" rx="1.5" fill="url(#gray-grad-3)" />
+                                <rect x="90" y="65" width="10" height="35" rx="1.5" fill="url(#gray-grad-4)" />
+                            </g>
+                            <g transform="translate(160, 0)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">AIME '26</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">IMO-AnswerBench</text>
+                                <rect x="15" y="55" width="10" height="45" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="50" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">97.1</text>
+                                <rect x="30" y="58" width="10" height="42" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="68" width="10" height="32" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="52" width="10" height="48" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="65" width="10" height="35" rx="1.5" fill="url(#gray-grad-3)" />
+                                <rect x="90" y="60" width="10" height="40" rx="1.5" fill="url(#gray-grad-4)" />
+                            </g>
+                            <g transform="translate(320, 0)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">AIME-Answer</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">AnswerBench</text>
+                                <rect x="15" y="60" width="10" height="40" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="55" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">87.1</text>
+                                <rect x="30" y="59" width="10" height="41" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="52" width="10" height="48" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="62" width="10" height="38" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="63" width="10" height="37" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <g transform="translate(480, 0)">
+                                <rect width="160" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">IFBench</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Instruction Following</text>
+                                <rect x="15" y="65" width="10" height="35" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="60" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">74.5</text>
+                                <rect x="30" y="66" width="10" height="34" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="63" width="10" height="37" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="70" width="10" height="30" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="60" width="10" height="40" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <!-- ROW 2 -->
+                            <g transform="translate(0, 135)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">SWE-bench Pro</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Software Engineering</text>
+                                <rect x="15" y="65" width="10" height="35" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="60" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">62.1</text>
+                                <rect x="30" y="68" width="10" height="32" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="60" width="10" height="40" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="67" width="10" height="33" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="72" width="10" height="28" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <g transform="translate(160, 135)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">Terminal-Bench</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Interactive Shell</text>
+                                <rect x="15" y="58" width="10" height="42" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="53" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">81.0</text>
+                                <rect x="30" y="70" width="10" height="30" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="70" width="10" height="30" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="56" width="10" height="44" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="62" width="10" height="38" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <g transform="translate(320, 135)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">NL2Repo</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Repo-level generation</text>
+                                <rect x="15" y="72" width="10" height="28" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="67" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">48.9</text>
+                                <rect x="30" y="78" width="10" height="22" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="58" width="10" height="42" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="65" width="10" height="35" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="68" width="10" height="32" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <g transform="translate(480, 135)">
+                                <rect width="160" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">DeepSWE</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Agentic Debugging</text>
+                                <rect x="15" y="75" width="10" height="25" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="70" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">46.2</text>
+                                <rect x="30" y="90" width="10" height="10" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="68" width="10" height="32" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="60" width="10" height="40" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="95" width="10" height="5" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <!-- ROW 3 -->
+                            <g transform="translate(0, 270)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">ProgramBench</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Logic & Syntax</text>
+                                <rect x="15" y="66" width="10" height="34" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="61" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">63.7</text>
+                                <rect x="30" y="74" width="10" height="26" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="61" width="10" height="39" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="62" width="10" height="38" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="80" width="10" height="20" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <g transform="translate(160, 270)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">MCP-Atlas</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Model Context Protocol</text>
+                                <rect x="15" y="60" width="10" height="40" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="55" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">77.0</text>
+                                <rect x="30" y="63" width="10" height="37" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="59" width="10" height="41" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="61" width="10" height="39" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="65" width="10" height="35" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <g transform="translate(320, 270)">
+                                <rect width="145" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">Tool-Decathlon</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Multi-tool use loops</text>
+                                <rect x="15" y="73" width="10" height="27" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="68" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">48.2</text>
+                                <rect x="30" y="78" width="10" height="22" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="65" width="10" height="35" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="68" width="10" height="32" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="73" width="10" height="27" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                            <g transform="translate(480, 270)">
+                                <rect width="160" height="120" rx="8" fill="#ffffff" filter="url(#shadow)" />
+                                <text x="12" y="20" font-size="11" font-weight="800" fill="#0f172a">Humanity's Exam</text>
+                                <text x="12" y="32" font-size="8" font-weight="600" fill="#94a3b8">Extreme Reasoning</text>
+                                <rect x="15" y="71" width="10" height="29" rx="1.5" fill="url(#red-grad)" />
+                                <text x="20" y="66" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">54.7</text>
+                                <rect x="30" y="73" width="10" height="27" rx="1.5" fill="url(#dark-grad)" />
+                                <rect x="45" y="69" width="10" height="31" rx="1.5" fill="url(#gray-grad-1)" />
+                                <rect x="60" y="73" width="10" height="27" rx="1.5" fill="url(#gray-grad-2)" />
+                                <rect x="75" y="55" width="10" height="45" rx="1.5" fill="url(#gray-grad-3)" />
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="section-divider"></div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="py-12 px-6 sm:px-8 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <!-- Logo -->
+                <div class="flex items-center gap-1.5 text-lg font-extrabold tracking-tight">
+                    <span class="text-white">Nitr</span>
+                    <span class="text-[#dc2626]">AI</span>
+                </div>
+
+                <!-- Footer Links -->
+                <div class="flex items-center gap-6 text-sm">
+                    <a href="https://huggingface.co/NitrAI/OpenGCM-v1" target="_blank" rel="noopener noreferrer" class="footer-link">Hugging Face</a>
+                    <a href="https://github.com/nitrai" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+                    <a href="#benchmarks" class="footer-link">Benchmarks</a>
+                </div>
+
+                <!-- Copyright -->
+                <p class="text-[#475569] text-sm">
+                    &copy; 2026 NitrAI Research. Open-source under Apache 2.0.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        (function() {
+            // --- Mobile Menu Toggle ---
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+
+                mobileMenu.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+
+            // --- Scroll-triggered fade-in animation ---
+            const fadeElements = document.querySelectorAll('.fade-in');
+
+            function checkVisibility() {
+                const windowHeight = window.innerHeight;
+                fadeElements.forEach(function(el) {
+                    const rect = el.getBoundingClientRect();
+                    const isVisible = rect.top < windowHeight - 80;
+                    if (isVisible) {
+                        el.classList.add('visible');
+                    }
+                });
+            }
+
+            window.addEventListener('load', function() {
+                setTimeout(checkVisibility, 100);
+            });
+            window.addEventListener('scroll', checkVisibility);
+            window.addEventListener('resize', checkVisibility);
+
+            // --- Smooth scroll for anchor links ---
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    const href = anchor.getAttribute('href');
+                    if (href === '#') return;
+                    const target = document.querySelector(href);
+                    if (target) {
+                        e.preventDefault();
+                        const offset = 80;
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        })();
+    </script>
+
+</body>
+</html>
